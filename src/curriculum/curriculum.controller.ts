@@ -14,10 +14,11 @@ export class CurriculumController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
+  //admin or author
   async index(@User() user: UserEntity): Promise<CurriculumEntity[]> {
-    if (user.role === UserRole.ADMIN) {
+    /*  if (user.roles === UserRole.ADMIN) {
       return await this.curriculumService.findAll();
-    }
+    } */
     return await this.curriculumService.getOwnerAll(user);
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -36,8 +36,13 @@ export class TicketService {
     } = data;
 
     //find entity relationship
-    const customer = await this.customerService.findOne(clientID);
-    const assignTo = await this.userService.findOne(userID);
+    const isExist = await this.ticketRepository.findOne({ order: order });
+    console.log(isExist);
+    if (isExist)
+      throw new ConflictException(`a ticket with order ${order} exist already`);
+
+    const customer = await this.customerService._findById(clientID);
+    const assignTo = await this.userService.findOne(userID); //where user est assigné a ce client
     //create new ticket object
     const newTkt = new TicketEntity();
     newTkt.customer = customer;
@@ -64,6 +69,7 @@ export class TicketService {
     const ticket = await this.ticketRepository.create(newTkt);
     await this.ticketRepository.save(ticket);
 
+    //custom retour of tkt
     return ticket;
   }
 

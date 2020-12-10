@@ -14,6 +14,8 @@ import { ProfileModule } from './profile/profile.module';
 import { TicketModule } from './ticket/ticket.module';
 
 import * as dotenv from 'dotenv';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 dotenv.config();
 
@@ -43,7 +45,13 @@ dotenv.config();
     TicketModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+   /*  {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    }, */
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

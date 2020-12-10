@@ -15,9 +15,10 @@ import { ContactService } from './contact.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { ContactEntity } from './entities/contact.entity';
 import { UpdateContactDto } from './dto/update-contact.dto';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller()
@@ -43,6 +44,8 @@ export class ContactController {
   }
 
   @Post('client/:client_id/contact')
+  //admin-manager-engineer
+  @Roles(UserRole.ADMIN)
   async create(
     @Param('client_id', ParseIntPipe) client_id: number,
     @Body() createContactDto: CreateContactDto,
@@ -60,6 +63,8 @@ export class ContactController {
   }
 
   @Put('client/:client_id/contact/:contact_id')
+  //admin-manager-engineer
+  @Roles(UserRole.ADMIN)
   async update(
     @Param('client_id', ParseIntPipe) client_id: number,
     @Param('contact_id', ParseIntPipe) contact_id: number,
@@ -73,6 +78,8 @@ export class ContactController {
   }
 
   @Delete('client/:client_id/contact/:contact_id')
+  //admin-manager-engineer
+  @Roles(UserRole.ADMIN)
   async remove(
     @Param('client_id', ParseIntPipe) client_id: number,
     @Param('contact_id', ParseIntPipe) contact_id: number,

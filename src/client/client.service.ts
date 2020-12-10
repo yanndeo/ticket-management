@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
-import { Repository, QueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ClientEntity } from './entities/client.entity';
@@ -17,86 +17,103 @@ export class ClientService {
    * create user
    * role_admin and role_manager
    * @param data
-   * @param user
    */
-  async create(data: CreateClientDto, user: UserEntity) {
-    if (user.role === UserRole.ADMIN || UserRole.MANAGER) {
-      const client = this.clientRepository.create(data);
-      return await this.clientRepository.save(client);
-    } else {
-      throw new UnauthorizedException();
-    }
+  async create(data: CreateClientDto) {
+    // eslint-disable-next-line prettier/prettier
+    const isExist = await this.clientRepository.findOne({ company: data.company.toLowerCase()});
+    if (isExist)
+      throw new ConflictException(`customer '${data.company}' exist already`);
+    const client = this.clientRepository.create(data);
+    return await this.clientRepository.save(client);
   }
 
   /**
+   * all users assigned to this customer and admin or manager
    * get all clients
    */
   async findAll() {
-    return await this.clientRepository.find({ order: { id: 'DESC' } });
+    //userAssigned = find user.id where client = id and clients.users = user.id
+    //if(userAssigned || user.roles.hasRole(amin or manager))
+    const clients = await this.clientRepository
+      .createQueryBuilder('client')
+      .orderBy('company', 'ASC')
+      .getMany();
+
+    const customers = [];
+
+    clients.forEach((item: ClientEntity) => {
+      const { created_at, updated_at, delete_at, contacts,tickets, ...result } = item;
+      customers.push(result);
+    });
+    return await customers;
   }
 
   /**
    * find client by id
+   * all users assigned to this customer and admin or manager
    * @param id
+   * @param user
    */
-  async findOne(id: number): Promise<ClientEntity> {
+  async findOne(id: number, user: UserEntity): Promise<ClientEntity> {
+    //userAssigned = find user.id where client = id and clients.users = user.id
+    //if(userAssigned || user.roles.hasRole(amin or manager))
     const client = await this.clientRepository.findOne(id);
-    if (!client) {
-      throw new NotFoundException(`customer ${id} not found`);
-    }
+    if (!client) throw new NotFoundException(`customer ${id} not found`);
     return client;
   }
 
   /**
    * update client
+   * admin or manager
    * @param id
    * @param updateClientDto
    */
-  async update(id: number, data: UpdateClientDto, user: UserEntity) {
-    if (user.role === UserRole.ADMIN || UserRole.MANAGER) {
-      const client = await this.clientRepository.preload({ id, ...data });
-      if (!client) throw new NotFoundException();
-      return await this.clientRepository.save(client);
-    } else {
-      throw new UnauthorizedException();
-    }
+  async update(id: number, data: UpdateClientDto) {
+    // eslint-disable-next-line prettier/prettier
+    const isExist = await this.clientRepository.findOne({
+      company: data.company.toLowerCase(),
+    });
+
+    if (isExist)
+      throw new ConflictException(`customer '${data.company}' exist already`);
+    const client = await this.clientRepository.preload({ id, ...data });
+    if (!client)
+      throw new NotFoundException(`can't 'updated' an item that doesn't exist`);
+
+    return await this.clientRepository.save(client);
   }
 
   /**
    * soft delete client
-   * role_admin or role_manager
-   * can do it
+   * admin
    * @param id
-   * @param user
    */
-  async sofDelete(id: number, user: UserEntity): Promise<any> {
-    if (user.role === UserRole.ADMIN || UserRole.MANAGER) {
-      const client = await this.clientRepository.findOne(id);
-      if (!client) throw new NotFoundException();
-      else return await this.clientRepository.softDelete(id);
-    } else {
-      throw new UnauthorizedException();
-    }
+  async sofDelete(id: number) {
+    const client = await this.clientRepository.findOne(id);
+    if (!client) throw new NotFoundException();
+    else return await this.clientRepository.softDelete(id);
   }
 
   /**
    * restore client deleted
-   * role_admin or role_manager
+   * admin
    * @param id
-   * @param user
    */
-  async restore(id: number, user: UserEntity): Promise<unknown> {
-    if (user.role === UserRole.ADMIN || UserRole.MANAGER) {
-      const client = this.clientRepository
-        .createQueryBuilder('client')
-        .where('client.id = : id', { id: id });
+  async restore(id: number) {
+    const client = this.clientRepository
+      .createQueryBuilder('client')
+      .where('client.id = : id', { id });
 
-      if (!client) {
-        throw new NotFoundException();
-      }
-      return await this.clientRepository.restore(id);
-    } else {
-      throw new UnauthorizedException();
-    }
+    if (!client) throw new NotFoundException();
+    return await this.clientRepository.restore(id);
+  }
+  /**
+   * find client without using @user
+   * @param id
+   */
+  async _findById(id: number): Promise<ClientEntity> {
+    const client = await this.clientRepository.findOne(id);
+    if (!client) throw new NotFoundException(`customer ${id} not found`);
+    return client;
   }
 }

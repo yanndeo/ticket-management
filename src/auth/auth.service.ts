@@ -45,7 +45,6 @@ export class AuthService {
   async register(userData: RegisterAuthDto): Promise<Partial<UserEntity>> {
     // create new user entity
     const user = await this.userService.createEntity(userData);
-    console.log(user);
     user.salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, user.salt);
     // save user entity in database
@@ -59,6 +58,7 @@ export class AuthService {
       id: user.id,
       username: user.username,
       email: user.email,
+      roles: user.roles,
     };
   }
 
@@ -83,8 +83,8 @@ export class AuthService {
     if (hashedPassword !== user.password) {
       throw new BadRequestException('username or password is incorrect');
     } else {
-      const { id, username, role, email } = user; //destructuring
-      const payload = { id, username, email, role }; //Assignation
+      const { id, username, roles, email } = user; //destructuring
+      const payload = { id, username, email, roles }; //Assignation
 
       console.log(payload);
       return await this._sign(payload);

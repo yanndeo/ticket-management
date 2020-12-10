@@ -7,12 +7,12 @@ import { Exclude } from 'class-transformer';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 
 export enum UserRole {
-  ROOT = 'ROLE_SUPER_ADMIN',
-  ADMIN = 'ROLE_ADMIN',
-  MANAGER = 'ROLE_MANAGER',
-  ENGINEER = 'ROLE_ENGINEER',
-  CUSTOMER = 'ROLE_CUSTOMER',
-  USER = 'ROLE_USER',
+  ROOT = 'root',
+  ADMIN = 'role_admin',
+  MANAGER = 'role_manager',
+  ENGINEER = 'role_engineer', //manage ticket
+  CUSTOMER = 'role_customer', //manage ticket
+  GUEST = 'guest',
 }
 
 @Entity('user')
@@ -32,11 +32,12 @@ export class UserEntity extends TimestampEntity {
   salt: string;
 
   @Column({
-    type: 'enum',
+    type: 'set',
     enum: UserRole,
-    default: UserRole.USER,
+    nullable: false,
+    default: [UserRole.GUEST],
   })
-  role: UserRole;
+  roles: UserRole[];
 
   @Column({ nullable: true })
   @IsDateString()

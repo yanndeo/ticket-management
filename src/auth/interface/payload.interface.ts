@@ -1,5 +1,7 @@
+import { UserRole } from 'src/user/entities/user.entity';
+
 export interface PayloadInterface {
   username: string;
   email: string;
-  role: string;
+  roles: UserRole[];
 }

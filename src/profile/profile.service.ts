@@ -64,14 +64,14 @@ export class ProfileService {
     }
     const userWithProfile = await this.userService.findOne(user.id);
 
-    if (
-      user.role === UserRole.ADMIN ||
+    /*  if (
+      user.roles === UserRole.ADMIN ||
       (userWithProfile.profile && userWithProfile.profile.id === id)
-    ) {
-      return await this.profileRepository.save(newProfile);
-    } else {
+    ) { */
+    return await this.profileRepository.save(newProfile);
+    /* } else {
       throw new UnauthorizedException();
-    }
+    } */
   }
 
   /* async remove(id: number, user: UserEntity): Promise<unknown> {

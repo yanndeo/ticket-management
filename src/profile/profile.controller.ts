@@ -3,9 +3,10 @@ import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { User } from 'src/decorators/user.decorator';
 import { ProfileEntity } from './entities/profile.entity';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('profile')
@@ -20,24 +21,26 @@ export class ProfileController {
 
   @UseGuards(JwtAuthGuard)
   @Get('users')
-  findAll(): Promise<UserEntity[]> {
-    return this.profileService.findAll();
+  async findAll(): Promise<UserEntity[]> {
+    return await this.profileService.findAll();
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('user/:id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.profileService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.profileService.findOne(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(
+  //role_admin  && author
+  @Roles(UserRole.ADMIN)
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProfileDto: UpdateProfileDto,
     @User() user: UserEntity,
   ): Promise<ProfileEntity> {
-    return this.profileService.update(id, updateProfileDto, user);
+    return await this.profileService.update(id, updateProfileDto, user);
   }
 
   /* @UseGuards(JwtAuthGuard)

@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryBuilder, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UserEntity, UserRole } from './entities/user.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RegisterAuthDto } from 'src/auth/dto/register.auth.dto';
@@ -50,13 +50,14 @@ export class UserService {
   }
 
   async isOwnerOrAdmin(object: any, user: UserEntity): Promise<boolean> {
-    return (
-      user.role === UserRole.ADMIN ||
-      (object.user && object.user.id === user.id)
-    );
+    /* return (
+    user.roles === UserRole.ADMIN || (object.user && object.user.id === user.id)
+    ); */
+    return true;
   }
 
   async isAdminOrManager(user: UserEntity): Promise<boolean> {
-    return user.role === UserRole.ADMIN || UserRole.MANAGER ? true : false;
+    //return user.roles === UserRole.ADMIN || UserRole.MANAGER ? true : false;
+    return true;
   }
 }

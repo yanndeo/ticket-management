@@ -1,14 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { LoginCredentialsDto } from '../auth/dto/login.credentials.dto';
 import { AuthService } from './auth.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { RegisterAuthDto } from './dto/register.auth.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @UseGuards(JwtAuthGuard)
   async register(@Body() data: RegisterAuthDto): Promise<Partial<UserEntity>> {
     return await this.authService.register(data);
   }

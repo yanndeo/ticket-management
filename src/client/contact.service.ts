@@ -1,8 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createQueryBuilder, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateContactDto } from './dto/create-contact.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
 import { ContactEntity } from './entities/contact.entity';
 import { ClientEntity } from './entities/client.entity';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
@@ -39,17 +42,17 @@ export class ContactService {
    * @param user
    */
   async create(id: number, data: CreateContactDto, user: UserEntity) {
-    if (user.role === UserRole.MANAGER || UserRole.ADMIN) {
-      const client = await this.clientRepository.findOne(id);
-      if (!client) {
-        throw new NotFoundException(`client ${id} not found`);
-      }
-      const contact = this.contactRepository.create(data);
-      contact.client = client;
-      return await this.contactRepository.save(contact);
-    } else {
-      throw new UnauthorizedException();
+   // if (user.roles === UserRole.MANAGER || UserRole.ADMIN) {
+    const client = await this.clientRepository.findOne(id);
+    if (!client) {
+      throw new NotFoundException(`client ${id} not found`);
     }
+    const contact = this.contactRepository.create(data);
+    contact.client = client;
+    return await this.contactRepository.save(contact);
+    /*}else {
+      throw new UnauthorizedException();
+    } */
   }
 
   /**
@@ -61,13 +64,16 @@ export class ContactService {
    */
   async getAll(id: number, user: UserEntity) {
     const client = await this.clientRepository.findOne(id);
+
     if (!client) {
       throw new NotFoundException(`client ${id} not found`);
     }
+
     const contacts = await this.contactRepository.find({
       where: { client: client },
       order: { id: 'DESC' },
     });
+
     return contacts;
   }
 
@@ -80,7 +86,6 @@ export class ContactService {
     const contact = await this.contactRepository
       .createQueryBuilder('contact')
       .leftJoin('contact.client', 'client')
-      // eslint-disable-next-line prettier/prettier
       .select(
         'contact.id, fullname, job, phone, email, comment, company, clientId',
       )
@@ -102,7 +107,6 @@ export class ContactService {
     const contact = await this.contactRepository
       .createQueryBuilder('contact')
       .leftJoin('contact.client', 'client')
-      // eslint-disable-next-line prettier/prettier
       .select(
         'contact.id, fullname, job, phone, email, comment, company, clientId',
       )
@@ -148,7 +152,7 @@ export class ContactService {
       .getRawOne();
 
     if (!contact) throw new NotFoundException('contact not exist');
-    
+
     return await this.contactRepository.remove(contact);
   }
 }
