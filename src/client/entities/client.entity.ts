@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { TimestampEntity } from 'src/generics/timestamp.entity';
 import { ContactEntity } from './contact.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 
 @Entity('client')
 export class ClientEntity extends TimestampEntity {
@@ -26,6 +27,8 @@ export class ClientEntity extends TimestampEntity {
   @Column({ type: 'text', nullable: true })
   logo: string;
 
+  //----------------RELATION-----------------------//
+
   @OneToMany(() => ContactEntity, (contact) => contact.client, {
     eager: true,
     nullable: true,
@@ -33,6 +36,13 @@ export class ClientEntity extends TimestampEntity {
     //lazy: true,
   })
   contacts: ContactEntity[];
+
+  @ManyToMany(() => UserEntity, {
+    eager: true,
+    nullable: true,
+  })
+  @JoinTable()
+  partners: UserEntity[]; //engineer, manager, admin, guest
 
   @OneToMany(() => TicketEntity, (ticket) => ticket.customer, {
     //eager: true,

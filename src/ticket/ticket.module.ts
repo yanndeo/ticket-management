@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TicketService } from './ticket.service';
-import { TicketController } from './ticket.controller';
+import { TicketService } from './services/ticket.service';
+import { TicketController } from './controllers/ticket.controller';
 import { UserModule } from 'src/user/user.module';
 import { TicketEntity } from './entities/ticket.entity';
 import { TicketSubscriber } from './subscribers/ticket.subscriber';

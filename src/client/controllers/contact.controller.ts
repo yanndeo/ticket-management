@@ -8,16 +8,17 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/decorators/user.decorator';
-import { ContactService } from './contact.service';
-import { CreateClientDto } from './dto/create-client.dto';
-import { CreateContactDto } from './dto/create-contact.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
+import { ContactService } from '../services/contact.service';
+import { CreateClientDto } from '../dto/create-client.dto';
+import { CreateContactDto } from '../dto/create-contact.dto';
+import { UpdateClientDto } from '../dto/update-client.dto';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
-import { ContactEntity } from './entities/contact.entity';
-import { UpdateContactDto } from './dto/update-contact.dto';
+import { ContactEntity } from '../entities/contact.entity';
+import { UpdateContactDto } from '../dto/update-contact.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 
 @UseGuards(JwtAuthGuard)
@@ -62,7 +63,7 @@ export class ContactController {
     return this.contactService.getOne(client_id, contact_id);
   }
 
-  @Put('client/:client_id/contact/:contact_id')
+  @Patch('client/:client_id/contact/:contact_id')
   //admin-manager-engineer
   @Roles(UserRole.ADMIN)
   async update(

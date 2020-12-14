@@ -5,12 +5,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateContactDto } from './dto/create-contact.dto';
-import { ContactEntity } from './entities/contact.entity';
-import { ClientEntity } from './entities/client.entity';
+import { CreateContactDto } from '../dto/create-contact.dto';
+import { ContactEntity } from '../entities/contact.entity';
+import { ClientEntity } from '../entities/client.entity';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
-import { UpdateContactDto } from './dto/update-contact.dto';
+import { UserService } from 'src/user/services/user.service';
+import { UpdateContactDto } from '../dto/update-contact.dto';
 
 @Injectable()
 export class ContactService {
@@ -29,8 +29,9 @@ export class ContactService {
   async findAll() {
     const contacts = this.contactRepository
       .createQueryBuilder('contact')
-      .innerJoinAndSelect('contact.client', 'client')
-      .orderBy('contact.fullname', 'DESC')
+      .innerJoin('contact.client', 'client')
+      .addSelect(['client.id', 'client.company'])
+      .orderBy('contact.fullname', 'ASC')
       .getMany();
     return contacts;
   }
@@ -42,7 +43,7 @@ export class ContactService {
    * @param user
    */
   async create(id: number, data: CreateContactDto, user: UserEntity) {
-   // if (user.roles === UserRole.MANAGER || UserRole.ADMIN) {
+    //if (user.roles === UserRole.MANAGER || UserRole.ADMIN) {
     const client = await this.clientRepository.findOne(id);
     if (!client) {
       throw new NotFoundException(`client ${id} not found`);

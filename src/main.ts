@@ -26,10 +26,10 @@ async function bootstrap() {
 
   //config swagger
   const options = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Ticket Management ')
+    .setDescription('CRM API description')
     .setVersion('1.0')
-    .addTag('cats')
+    .addTag('ticket')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);

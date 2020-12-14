@@ -12,7 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginCredentialsDto } from '../auth/dto/login.credentials.dto';
 import { PayloadInterface } from './interface/payload.interface';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterAuthDto } from './dto/register.auth.dto';
 

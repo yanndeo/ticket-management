@@ -26,10 +26,10 @@ export class TicketEntity extends TimestampEntity {
   //@Column({ length: 255, unique: true, nullable: true })
   //code: string;
 
-  @Column({ length: 255, unique: true, nullable: true })
+  @Column({ length: 255, unique: false, nullable: true })
   order: string;
 
-  @Column({ length: 120, nullable: false, default: PriorityTicketEnum.NORMAL })
+  @Column({ length: 60, nullable: false, default: PriorityTicketEnum.NORMAL })
   priority: string;
 
   @Column({ nullable: false, default: StatusTicketEnum.NEW })

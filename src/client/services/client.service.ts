@@ -1,10 +1,14 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
-import { ClientEntity } from './entities/client.entity';
+import { CreateClientDto } from '../dto/create-client.dto';
+import { UpdateClientDto } from '../dto/update-client.dto';
+import { ClientEntity } from '../entities/client.entity';
 
 @Injectable()
 export class ClientService {
@@ -33,7 +37,7 @@ export class ClientService {
    */
   async findAll() {
     //userAssigned = find user.id where client = id and clients.users = user.id
-    //if(userAssigned || user.roles.hasRole(amin or manager))
+    //if(userAssigned || hasRole(admin or manager))
     const clients = await this.clientRepository
       .createQueryBuilder('client')
       .orderBy('company', 'ASC')
@@ -42,7 +46,14 @@ export class ClientService {
     const customers = [];
 
     clients.forEach((item: ClientEntity) => {
-      const { created_at, updated_at, delete_at, contacts,tickets, ...result } = item;
+      const {
+        created_at,
+        updated_at,
+        delete_at,
+        contacts,
+        tickets,
+        ...result
+      } = item;
       customers.push(result);
     });
     return await customers;
@@ -102,11 +113,14 @@ export class ClientService {
   async restore(id: number) {
     const client = this.clientRepository
       .createQueryBuilder('client')
-      .where('client.id = : id', { id });
+      .where('client.id = :id', { id })
+      .select('client.id')
+      .getOne();
 
     if (!client) throw new NotFoundException();
     return await this.clientRepository.restore(id);
   }
+
   /**
    * find client without using @user
    * @param id

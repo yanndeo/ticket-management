@@ -8,17 +8,20 @@ import {
   UseGuards,
   ParseIntPipe,
   Patch,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/decorators/roles.decorator';
 import { User } from 'src/decorators/user.decorator';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
-import { ClientService } from './client.service';
-import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
-import { ClientEntity } from './entities/client.entity';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { ClientService } from '../services/client.service';
+import { CreateClientDto } from '../dto/create-client.dto';
+import { UpdateClientDto } from '../dto/update-client.dto';
+import { ClientEntity } from '../entities/client.entity';
+import { RolesGuard } from '../../auth/guards/roles.guard';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('client')
 export class ClientController {
@@ -66,7 +69,7 @@ export class ClientController {
     return await this.clientService.sofDelete(id);
   }
 
-  @Get('restore/:id')
+  @Get(':id/restore')
   //role_admin
   @Roles(UserRole.ADMIN)
   async recover(@Param('id', ParseIntPipe) id: number): Promise<unknown> {

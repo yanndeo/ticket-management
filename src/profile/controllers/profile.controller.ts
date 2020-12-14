@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, UseInterceptors, ClassSerializerInterceptor, ParseIntPipe, Patch } from '@nestjs/common';
-import { ProfileService } from './profile.service';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ProfileService } from '../services/profile.service';
+import { CreateProfileDto } from '../dto/create-profile.dto';
+import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { User } from 'src/decorators/user.decorator';
-import { ProfileEntity } from './entities/profile.entity';
+import { ProfileEntity } from '../entities/profile.entity';
 import { Roles } from 'src/decorators/roles.decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)

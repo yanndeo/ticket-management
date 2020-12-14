@@ -5,7 +5,7 @@ import { AddCvDTO } from './dto/Add-cv-dto';
 import { CurriculumEntity } from './entities/curriculum.entity';
 import { UpdateCvDTO } from './dto/Update-cv-dto';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 
 @Injectable()
 export class CurriculumService {

@@ -3,13 +3,15 @@ import { TimestampEntity } from 'src/generics/timestamp.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { ProfileEntity } from '../../profile/entities/profile.entity';
 import { IsDateString } from 'class-validator';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 
 export enum UserRole {
+  //interne
   ROOT = 'root',
   ADMIN = 'role_admin',
   MANAGER = 'role_manager',
+  //external
   ENGINEER = 'role_engineer', //manage ticket
   CUSTOMER = 'role_customer', //manage ticket
   GUEST = 'guest',
@@ -47,6 +49,7 @@ export class UserEntity extends TimestampEntity {
   @OneToOne(() => ProfileEntity, {
     cascade: true,
     nullable: true,
+    eager: true,
   })
   @JoinColumn()
   profile: ProfileEntity;
@@ -61,4 +64,14 @@ export class UserEntity extends TimestampEntity {
     nullable: true,
   })
   tickets: Promise<TicketEntity[]>;
+
+  @Expose()
+  get Fullname(): string {
+    return `${this.profile?.fullName}`;
+  }
+
+  @Expose()
+  get Photo(): string {
+    return `${this.profile?.photo}`;
+  }
 }

@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserEntity, UserRole } from './entities/user.entity';
+import { UserEntity, UserRole } from '../entities/user.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RegisterAuthDto } from 'src/auth/dto/register.auth.dto';
 
