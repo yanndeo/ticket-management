@@ -1,6 +1,6 @@
 import { CurriculumEntity } from 'src/curriculum/entities/curriculum.entity';
 import { TimestampEntity } from 'src/generics/timestamp.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { ProfileEntity } from '../../profile/entities/profile.entity';
 import { IsDateString } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
@@ -73,5 +73,12 @@ export class UserEntity extends TimestampEntity {
   @Expose()
   get Photo(): string {
     return `${this.profile?.photo}`;
+  }
+
+  @BeforeInsert()
+  emailToLowerCase() {
+    if (this.email) {
+      return this.email.toLowerCase().trim();
+    }
   }
 }

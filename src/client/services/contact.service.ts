@@ -43,6 +43,7 @@ export class ContactService {
    * @param user
    */
   async create(id: number, data: CreateContactDto, user: UserEntity) {
+    console.log('data:', data);
     //if (user.roles === UserRole.MANAGER || UserRole.ADMIN) {
     const client = await this.clientRepository.findOne(id);
     if (!client) {

@@ -2,6 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import * as dotenv from 'dotenv';
 
 import * as morgan from 'morgan';
@@ -10,7 +12,10 @@ import { ConfigService } from '@nestjs/config';
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  //const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.useStaticAssets(join(__dirname, '..', 'uploads'));
 
   //use .env variable
   const configService = app.get(ConfigService);
@@ -19,7 +24,8 @@ async function bootstrap() {
   const corsOptions = {
     origin: ['http://localhost:4200'],
   };
-  app.enableCors(corsOptions);
+  //app.enableCors(corsOptions);
+  app.enableCors();
 
   //logger all request route with morgan
   app.use(morgan('dev'));
@@ -43,7 +49,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-
   await app.listen(configService.get('APP_PORT'));
 }
 bootstrap();

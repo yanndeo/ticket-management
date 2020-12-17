@@ -32,7 +32,7 @@ export class CreateClientDto {
   description: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  logo: string;
+  //@IsNotEmpty()
+  //@IsString()
+  logo: any;
 }

@@ -22,13 +22,22 @@ export class ClientService {
    * role_admin and role_manager
    * @param data
    */
-  async create(data: CreateClientDto) {
+  async create(data: CreateClientDto, host) {
+    const {
+      logo: { filename },
+      company,
+    } = data;
     // eslint-disable-next-line prettier/prettier
-    const isExist = await this.clientRepository.findOne({ company: data.company.toLowerCase()});
+    const isExist = await this.clientRepository.findOne({ company: company.toLowerCase()});
     if (isExist)
-      throw new ConflictException(`customer '${data.company}' exist already`);
+      throw new ConflictException(`customer '${company}' exist already`);
+    data.logo = filename;
+
     const client = this.clientRepository.create(data);
-    return await this.clientRepository.save(client);
+    const res = await this.clientRepository.save(client);
+
+    res.logo = `${host}/logos/${filename}`;
+    return res;
   }
 
   /**
@@ -81,13 +90,14 @@ export class ClientService {
    */
   async update(id: number, data: UpdateClientDto) {
     // eslint-disable-next-line prettier/prettier
-    const isExist = await this.clientRepository.findOne({
-      company: data.company.toLowerCase(),
-    });
+    console.log(data);
+    const isExist = await this.clientRepository.findOne({ company: data.company.toLowerCase()});
 
     if (isExist)
       throw new ConflictException(`customer '${data.company}' exist already`);
+
     const client = await this.clientRepository.preload({ id, ...data });
+
     if (!client)
       throw new NotFoundException(`can't 'updated' an item that doesn't exist`);
 

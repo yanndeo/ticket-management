@@ -14,13 +14,16 @@ import { ProfileModule } from './profile/profile.module';
 import { TicketModule } from './ticket/ticket.module';
 
 import * as dotenv from 'dotenv';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './auth/guards/roles.guard';
+import { FilesModule } from './files/files.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 dotenv.config();
 
 @Module({
   imports: [
+    MulterModule.register({
+      dest: './uploads',
+    }),
     HelpersModule,
     AuthModule,
     CurriculumModule,
@@ -43,6 +46,7 @@ dotenv.config();
       synchronize: true, //Don't use it in Prod
     }),
     TicketModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

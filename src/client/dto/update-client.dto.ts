@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateClientDto } from './create-client.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsArray, IsOptional, IsString, IsUrl } from 'class-validator';
 import { ContactEntity } from '../entities/contact.entity';
 
 export class UpdateClientDto extends PartialType(CreateClientDto) {
@@ -20,9 +20,13 @@ export class UpdateClientDto extends PartialType(CreateClientDto) {
   @IsUrl()
   link_util: string;
 
-  @ApiProperty()
+  /* @ApiProperty()
   @IsOptional()
   @IsString()
+  emails: string[]; */
+  @ApiProperty()
+  @IsOptional()
+  @IsArray()
   emails: string[];
 
   @ApiProperty()

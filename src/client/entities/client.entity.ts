@@ -1,4 +1,11 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+} from 'typeorm';
 import { TimestampEntity } from 'src/generics/timestamp.entity';
 import { ContactEntity } from './contact.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
@@ -49,4 +56,14 @@ export class ClientEntity extends TimestampEntity {
     nullable: true,
   })
   tickets: TicketEntity[];
+
+  //----------------RELATION-----------------------//
+  @BeforeInsert()
+  emailsToLowerCase() {
+    if (this.emails?.length > 0) {
+      const emails = this.emails?.map((email) => email.toLowerCase());
+      this.emails = emails;
+      return this.emails;
+    }
+  }
 }
