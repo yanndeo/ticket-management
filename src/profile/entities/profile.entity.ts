@@ -15,7 +15,7 @@ export class ProfileEntity {
   @Column({ type: 'longtext', nullable: true })
   address: string;
 
-  @Column({ nullable: false })
+  @Column({ length: 45, nullable: false })
   nationality: string;
 
   @Column({ length: 80, nullable: true })
@@ -27,8 +27,8 @@ export class ProfileEntity {
   @Column({ nullable: true })
   photo: string | null;
 
-  @Expose()
+  /* @Expose()
   get fullName(): string {
-    return `${this.firstname} ${this.lastname}`;
-  }
+    return `${this.firstname}${this.lastname}`;
+  } */
 }

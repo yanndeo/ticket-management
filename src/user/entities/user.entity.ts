@@ -65,15 +65,18 @@ export class UserEntity extends TimestampEntity {
   })
   tickets: Promise<TicketEntity[]>;
 
+  // ----------------- custom attributes/properties
+
   @Expose()
   get Fullname(): string {
-    return `${this.profile?.fullName}`;
+    return `${this.profile?.firstname} ${this.profile?.lastname}`;
   }
 
   @Expose()
   get Photo(): string {
     return `${this.profile?.photo}`;
   }
+  // ----------------- Events
 
   @BeforeInsert()
   emailToLowerCase() {
@@ -81,4 +84,9 @@ export class UserEntity extends TimestampEntity {
       return this.email.toLowerCase().trim();
     }
   }
+
+  // ----------------- Functions
+  hasRole = (role: UserRole) => {
+    return this.roles?.includes(role);
+  };
 }

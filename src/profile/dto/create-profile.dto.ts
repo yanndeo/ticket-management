@@ -17,8 +17,8 @@ export class CreateProfileDto {
   address: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   nationality: string;
 
   @IsOptional()

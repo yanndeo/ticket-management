@@ -7,8 +7,10 @@ export const User = createParamDecorator((data: string, ctx: ExecutionContext): 
     delete user.updated_at;
     delete user.created_at;
     //const profile = user.profile;
-    const { nationality, address,mobile,fixe, ...res } = user.profile;
-    user.profile = res;
+    if (user && user.profile) {
+      const { nationality, address, mobile, fixe, ...res } = user?.profile;
+      user.profile = res;
+    }
     //delete profile.id, profile.firstname;
 
     return data ? user && user[data] : user;

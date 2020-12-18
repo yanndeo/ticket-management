@@ -18,12 +18,22 @@ export class ProfileService {
   /**
    * create profile's user
    * @param data
+   * @param id
    * @param user
    */
-  async create(data: CreateProfileDto, user: UserEntity) {
-    const profile = this.profileRepository.create(data);
-    user.profile = profile;
-    return await this.userService.update(user);
+  async create(data: CreateProfileDto, id: number, userConnected: UserEntity) {
+    const userFounded = await this.userService.findOne(id);
+    if (!userFounded) throw new NotFoundException();
+
+    if (userConnected.id === id || userConnected.hasRole(UserRole.ADMIN)) {
+      const profile = this.profileRepository.create(data);
+      userFounded.profile = profile;
+
+      return await this.userService.update(userFounded);
+    }
+    throw new UnauthorizedException(
+      `you're not authorized to modify this profile`,
+    );
   }
 
   /**

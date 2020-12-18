@@ -3,25 +3,20 @@ import {
   Get,
   Post,
   Body,
-  Put,
   Param,
   Delete,
   UseGuards,
   ParseIntPipe,
   Patch,
-  UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { User } from 'src/config/decorators/user.decorator';
 import { ContactService } from '../services/contact.service';
-import { CreateClientDto } from '../dto/create-client.dto';
 import { CreateContactDto } from '../dto/create-contact.dto';
-import { UpdateClientDto } from '../dto/update-client.dto';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { ContactEntity } from '../entities/contact.entity';
 import { UpdateContactDto } from '../dto/update-contact.dto';
 import { Roles } from 'src/config/decorators/roles.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(JwtAuthGuard)
 @Controller()
@@ -47,7 +42,6 @@ export class ContactController {
   }
 
   @Post('client/:client_id/contact')
-  @UseInterceptors(FileInterceptor('file'))
   //admin-manager-engineer
   @Roles(UserRole.ADMIN)
   async create(

@@ -1,13 +1,24 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards, UseInterceptors, ClassSerializerInterceptor, ParseIntPipe, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  ParseIntPipe,
+  Patch,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ProfileService } from '../services/profile.service';
 import { CreateProfileDto } from '../dto/create-profile.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
-import { User } from 'src/config/decorators/user.decorator';
 import { ProfileEntity } from '../entities/profile.entity';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from 'src/config/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { User } from 'src/config/decorators/user.decorator';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -15,14 +26,14 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @Post()
-  //role_admin
-  @Roles(UserRole.ADMIN)
+  @Post('user/:id')
+  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createProfileDto: CreateProfileDto,
+    @Param('id', ParseIntPipe) id: number,
     @User() user: UserEntity,
   ) {
-    return await this.profileService.create(createProfileDto, user);
+    return await this.profileService.create(createProfileDto, id, user);
   }
 
   @UseGuards(JwtAuthGuard)

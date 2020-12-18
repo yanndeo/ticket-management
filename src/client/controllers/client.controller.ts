@@ -31,12 +31,12 @@ export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @Post()
-  //role_admin
-  @Roles(UserRole.ADMIN)
+  //role_admin || role_manager
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async create(
     @Body() createClientDto: CreateClientDto,
     @Req() req: Request,
-  ): Promise<any> {
+  ): Promise<ClientEntity> {
     //createClientDto.logo = logo;
     //1- check if logo exist and not undefined
     //2- receive base64 image const base64
