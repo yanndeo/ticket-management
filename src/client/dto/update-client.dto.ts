@@ -31,7 +31,7 @@ export class UpdateClientDto extends PartialType(CreateClientDto) {
 
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @IsArray()
   phones: string[];
 
   @ApiProperty()

@@ -4,19 +4,25 @@ import { CreateProfileDto } from '../dto/create-profile.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
-import { User } from 'src/decorators/user.decorator';
+import { User } from 'src/config/decorators/user.decorator';
 import { ProfileEntity } from '../entities/profile.entity';
-import { Roles } from 'src/decorators/roles.decorator';
+import { Roles } from 'src/config/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() data: CreateProfileDto, @User() user: UserEntity) {
-    return await this.profileService.create(data, user);
+  //role_admin
+  @Roles(UserRole.ADMIN)
+  async create(
+    @Body() createProfileDto: CreateProfileDto,
+    @User() user: UserEntity,
+  ) {
+    return await this.profileService.create(createProfileDto, user);
   }
 
   @UseGuards(JwtAuthGuard)

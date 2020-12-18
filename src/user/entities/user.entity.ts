@@ -1,5 +1,5 @@
 import { CurriculumEntity } from 'src/curriculum/entities/curriculum.entity';
-import { TimestampEntity } from 'src/generics/timestamp.entity';
+import { TimestampEntity } from 'src/config/generics/timestamp.entity';
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { ProfileEntity } from '../../profile/entities/profile.entity';
 import { IsDateString } from 'class-validator';

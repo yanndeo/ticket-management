@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
 import { Column, Entity, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
-import { TimestampEntity } from 'src/generics/timestamp.entity';
+import { TimestampEntity } from 'src/config/generics/timestamp.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { ClientEntity } from 'src/client/entities/client.entity';
 

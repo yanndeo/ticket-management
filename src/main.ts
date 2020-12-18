@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
+import { json } from 'body-parser';
 
 import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
@@ -16,6 +17,8 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useStaticAssets(join(__dirname, '..', 'uploads'));
+  app.setGlobalPrefix('api');
+  app.use(json({ limit: '70mb' }));
 
   //use .env variable
   const configService = app.get(ConfigService);

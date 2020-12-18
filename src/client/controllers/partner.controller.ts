@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
-import { User } from 'src/decorators/user.decorator';
+import { Roles } from 'src/config/decorators/roles.decorator';
+import { User } from 'src/config/decorators/user.decorator';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { ClientEntity } from '../entities/client.entity';
 import { PartnerService } from '../services/partner.service';

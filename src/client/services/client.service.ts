@@ -1,7 +1,10 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
+  PayloadTooLargeException,
+  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
@@ -9,6 +12,14 @@ import { Repository } from 'typeorm';
 import { CreateClientDto } from '../dto/create-client.dto';
 import { UpdateClientDto } from '../dto/update-client.dto';
 import { ClientEntity } from '../entities/client.entity';
+import * as fs from 'fs';
+import path from 'path';
+import * as mime from 'mime-types';
+import { v4 as uuid } from 'uuid';
+import sizeOf from 'image-size';
+
+export const limitSize = 2 * 1025 * 1025;
+export const logoDir = './uploads/logos/';
 
 @Injectable()
 export class ClientService {
@@ -22,17 +33,23 @@ export class ClientService {
    * role_admin and role_manager
    * @param data
    */
-  async create(data: CreateClientDto, host) {
-    const {
-      logo: { filename },
-      company,
-    } = data;
+  async create(data: CreateClientDto, host: string) {
+    // eslint-disable-next-line prefer-const
+    let { logo, company } = data;
+
     // eslint-disable-next-line prettier/prettier
-    const isExist = await this.clientRepository.findOne({ company: company.toLowerCase()});
+    const isExist = await this.clientRepository.findOne({
+      company: company.toLowerCase(),
+    });
     if (isExist)
       throw new ConflictException(`customer '${company}' exist already`);
-    data.logo = filename;
 
+    let filename = '';
+    if (logo && logo !== undefined) {
+      filename = this._uploadableFile(logoDir, logo);
+    }
+
+    data.logo = filename;
     const client = this.clientRepository.create(data);
     const res = await this.clientRepository.save(client);
 
@@ -88,20 +105,32 @@ export class ClientService {
    * @param id
    * @param updateClientDto
    */
-  async update(id: number, data: UpdateClientDto) {
+  async update(id: number, data: UpdateClientDto, host: string) {
     // eslint-disable-next-line prettier/prettier
     console.log(data);
-    const isExist = await this.clientRepository.findOne({ company: data.company.toLowerCase()});
+    const isExist = await this.clientRepository.findOne({
+      company: data.company?.toLowerCase(),
+    });
 
     if (isExist)
       throw new ConflictException(`customer '${data.company}' exist already`);
 
-    const client = await this.clientRepository.preload({ id, ...data });
+    const client = await this.clientRepository.findOne(id);
 
     if (!client)
       throw new NotFoundException(`can't 'updated' an item that doesn't exist`);
 
-    return await this.clientRepository.save(client);
+    if (data.logo && data.logo !== undefined) {
+      client.logo ? this._unlinkedFile(logoDir, client.logo) : '';
+      const newFilename = this._uploadableFile(logoDir, data.logo);
+      data.logo = newFilename;
+    }
+    const clientUpdated = await this.clientRepository.preload({ id, ...data });
+
+    const res = await this.clientRepository.save(clientUpdated);
+
+    res.logo = `${host}/logos/${res.logo}`;
+    return res;
   }
 
   /**
@@ -139,5 +168,62 @@ export class ClientService {
     const client = await this.clientRepository.findOne(id);
     if (!client) throw new NotFoundException(`customer ${id} not found`);
     return client;
+  }
+
+  /**
+   * convert base64 data to image file
+   * store image into folder logos
+   * check size bytes and extension match
+   * return filename
+   * @param path
+   * @param _64String
+   */
+  _uploadableFile(path: string, _64String: string): string {
+    const matches = _64String.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+
+    if (matches.length !== 3) {
+      throw new BadRequestException(`Invalid input string file`);
+    }
+
+    const imageBuffer = Buffer.from(matches[2], 'base64'); //decodedImg.data;
+    //const type = matches[1]; //decodedImg.type;
+    const extension = sizeOf(imageBuffer).type; //mime.extension(type);
+    const fileName = `${uuid()}.${extension}`;
+    const sizebytes = imageBuffer.byteLength / 1024;
+
+    if (sizebytes > limitSize) {
+      throw new PayloadTooLargeException(
+        `size doesn't must be greater than limit: 5mo `,
+      );
+    }
+
+    if (extension.match(/\/(jpg|jpeg|png)$/)) {
+      throw new UnsupportedMediaTypeException();
+    }
+
+    try {
+      fs.writeFileSync(path + fileName, imageBuffer, 'utf8');
+      return fileName;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(error);
+    }
+  }
+
+  /**
+   * remove image file into folder
+   * with realpath
+   * @param path
+   * @param filename
+   */
+  _unlinkedFile(path: string, filename: string): boolean {
+    const realPath = `${path}${filename}`;
+    console.log(realPath);
+    try {
+      fs.unlinkSync(realPath);
+      return true;
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -23,7 +23,7 @@ export class CreateClientDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @IsArray()
   phones: string[];
 
   @ApiProperty()
@@ -32,7 +32,7 @@ export class CreateClientDto {
   description: string;
 
   @ApiProperty()
-  //@IsNotEmpty()
-  //@IsString()
-  logo: any;
+  @IsNotEmpty()
+  @IsString()
+  logo: string;
 }

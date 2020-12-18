@@ -1,10 +1,15 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HelpersModule } from './helpers/helpers.module';
 import { ConfigModule } from '@nestjs/config';
-import { FirstMiddleware } from './middleware/middleware';
-import { logger } from './middleware/logger.middleware';
+import { FirstMiddleware } from './config/middleware/middleware';
+import { logger } from './config/middleware/logger.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CurriculumModule } from './curriculum/curriculum.module';
 import { UserModule } from './user/user.module';
@@ -14,7 +19,6 @@ import { ProfileModule } from './profile/profile.module';
 import { TicketModule } from './ticket/ticket.module';
 
 import * as dotenv from 'dotenv';
-import { FilesModule } from './files/files.module';
 import { MulterModule } from '@nestjs/platform-express';
 
 dotenv.config();
@@ -46,7 +50,6 @@ dotenv.config();
       synchronize: true, //Don't use it in Prod
     }),
     TicketModule,
-    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

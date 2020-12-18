@@ -8,7 +8,7 @@ import { UserService } from 'src/user/services/user.service';
 import { Repository } from 'typeorm';
 import { ClientEntity } from '../entities/client.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { removeItem } from 'src/helpers';
+import { removeItem } from 'src/utils';
 
 @Injectable()
 export class PartnerService {

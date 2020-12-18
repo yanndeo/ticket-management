@@ -6,7 +6,7 @@ import {
   ManyToMany,
   OneToMany,
 } from 'typeorm';
-import { TimestampEntity } from 'src/generics/timestamp.entity';
+import { TimestampEntity } from 'src/config/generics/timestamp.entity';
 import { ContactEntity } from './contact.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { UserEntity } from 'src/user/entities/user.entity';

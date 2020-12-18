@@ -3,10 +3,10 @@ import { TicketService } from '../services/ticket.service';
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { UpdateTicketDto } from '../dto/update-ticket.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { User } from 'src/decorators/user.decorator';
+import { User } from 'src/config/decorators/user.decorator';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Roles } from 'src/decorators/roles.decorator';
+import { Roles } from 'src/config/decorators/roles.decorator';
 import { TicketInterface } from '../interface/ticket.interface';
 import { TicketEntity } from '../entities/ticket.entity';
 

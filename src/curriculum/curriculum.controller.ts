@@ -4,7 +4,7 @@ import { AddCvDTO } from './dto/Add-cv-dto';
 import { CurriculumEntity } from './entities/curriculum.entity';
 import { UpdateCvDTO } from './dto/Update-cv-dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { User } from '../decorators/user.decorator';
+import { User } from '../config/decorators/user.decorator';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 
 @UseInterceptors(ClassSerializerInterceptor)
