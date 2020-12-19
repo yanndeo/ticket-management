@@ -10,7 +10,6 @@ import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { ProfileEntity } from '../entities/profile.entity';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
-import { _unlinkedFile, _uploadableFile } from 'src/utils';
 import { UploadableService } from 'src/helpers/uploadable/uploadable.service';
 
 export const limitSize = 2 * 1025 * 1025;
@@ -27,12 +26,18 @@ export class ProfileService {
 
   /**
    * create profile's user
+   * admin and author
    * @param data
    * @param id
    * @param user
    * @param host
    */
-  async create(data: CreateProfileDto, id: number, userConnected: UserEntity, host: string) {
+  async create(
+    data: CreateProfileDto,
+    id: number,
+    userConnected: UserEntity,
+    host: string,
+  ) {
     const userFounded = await this.userService.findOne(id);
     if (!userFounded) throw new NotFoundException();
 
@@ -41,7 +46,10 @@ export class ProfileService {
         userFounded.Photo
           ? this.uploadableService._unlinkedFile(logoDir, userFounded.Photo)
           : '';
-        const newFilename = this.uploadableService._uploadableFile(logoDir, data.photo);
+        const newFilename = this.uploadableService._uploadableFile(
+          logoDir,
+          data.photo,
+        );
         data.photo = newFilename;
       }
 
@@ -60,6 +68,7 @@ export class ProfileService {
   /**
    * find all users
    * with profile
+   * without user.roles
    */
   async findAll(): Promise<UserEntity[]> {
     return await this.userService.findAllWithProfile();
@@ -68,43 +77,68 @@ export class ProfileService {
   /**
    * find user
    * with profile
+   * without user.roles
    * @param id
    */
-  async findOne(id: number): Promise<UserEntity> {
-    const profile = await this.userService.findOne(id);
-    if (!profile) {
-      throw new NotFoundException();
-    }
-    return profile;
+  async findOne(id: number) {
+    const user = await this.userService.findOne(id);
+
+    if (!user) throw new NotFoundException();
+
+    delete user.created_at;
+    delete user.updated_at;
+    delete user.delete_at;
+
+    return user;
   }
 
   /**
    * update profile 's user
-   * @param id
+   * admin and author
    * @param data
+   * @param id
    * @param user
+   * @param host
    */
   async update(
-    id: number,
     data: UpdateProfileDto,
+    id: number,
     user: UserEntity,
-  ): Promise<ProfileEntity> {
-    const newProfile = await this.profileRepository.preload({ id, ...data });
-    if (!newProfile) {
+    host: string,
+  ) {
+    console.log(user);
+    const profileFounded = await this.profileRepository.findOne(id);
+    if (!profileFounded)
       throw new NotFoundException(`profile ${id} doesn't exist`);
-    }
-    const userWithProfile = await this.userService.findOne(user.id);
+    //const userConnected = await this.userService.findOne(user.id);
 
-    /*  if (
-      user.roles === UserRole.ADMIN ||
-      (userWithProfile.profile && userWithProfile.profile.id === id)
-    ) { */
-    return await this.profileRepository.save(newProfile);
-    /* } else {
-      throw new UnauthorizedException();
-    } */
+    if (user?.profile?.id === id || user.hasRole(UserRole.ADMIN)) {
+      if (data.photo && data.photo !== undefined) {
+        profileFounded.photo
+          ? this.uploadableService._unlinkedFile(logoDir, profileFounded.photo)
+          : '';
+        const newFilename = this.uploadableService._uploadableFile(
+          logoDir,
+          data.photo,
+        );
+        data.photo = newFilename;
+      }
+
+      const profileUpdated = await this.profileRepository.preload({ id, ...data });
+      const profile = await this.profileRepository.save(profileUpdated);
+      profile.photo = data.photo ? `${host}/profiles/${profile?.photo}` : null;
+
+      return profile;
+    }
+    throw new UnauthorizedException(
+      `you're not authorized to modify this user's profile`,
+    );
   }
 
+  /**
+   * delete user to remove profile
+   * or just update profile
+   */
   /* async remove(id: number, user: UserEntity): Promise<unknown> {
     return await this.profileRepository.delete(id);
   } */

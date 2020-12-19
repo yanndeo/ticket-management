@@ -29,37 +29,45 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Post('user/:id')
+  //role_admin  && author
   async create(
     @Body() createProfileDto: CreateProfileDto,
     @Param('id', ParseIntPipe) id: number,
     @User() user: UserEntity,
     @Req() req: Request,
-  ) {
-    return await this.profileService.create(createProfileDto, id, user, req.get('host'));
+  ): Promise<UserEntity> {
+    return await this.profileService.create(
+      createProfileDto,
+      id,
+      user,
+      req.get('host'),
+    );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('users')
   async findAll(): Promise<UserEntity[]> {
     return await this.profileService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('user/:id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<UserEntity> {
     return await this.profileService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  //role_admin  && author
-  @Roles(UserRole.ADMIN)
+  //role_admin && author
   async update(
-    @Param('id', ParseIntPipe) id: number,
     @Body() updateProfileDto: UpdateProfileDto,
+    @Param('id', ParseIntPipe) id: number,
     @User() user: UserEntity,
+    @Req() req: Request,
   ): Promise<ProfileEntity> {
-    return await this.profileService.update(id, updateProfileDto, user);
+    return await this.profileService.update(
+      updateProfileDto,
+      id,
+      user,
+      req.get('host'),
+    );
   }
 
   /* @UseGuards(JwtAuthGuard)
