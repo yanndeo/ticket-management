@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProfileDto } from '../dto/create-profile.dto';
@@ -6,6 +10,11 @@ import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { ProfileEntity } from '../entities/profile.entity';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
+import { _unlinkedFile, _uploadableFile } from 'src/utils';
+import { UploadableService } from 'src/helpers/uploadable/uploadable.service';
+
+export const limitSize = 2 * 1025 * 1025;
+export const logoDir = './uploads/profiles/';
 
 @Injectable()
 export class ProfileService {
@@ -13,6 +22,7 @@ export class ProfileService {
     @InjectRepository(ProfileEntity)
     private profileRepository: Repository<ProfileEntity>,
     private userService: UserService,
+    private uploadableService: UploadableService,
   ) {}
 
   /**
@@ -20,16 +30,27 @@ export class ProfileService {
    * @param data
    * @param id
    * @param user
+   * @param host
    */
-  async create(data: CreateProfileDto, id: number, userConnected: UserEntity) {
+  async create(data: CreateProfileDto, id: number, userConnected: UserEntity, host: string) {
     const userFounded = await this.userService.findOne(id);
     if (!userFounded) throw new NotFoundException();
 
     if (userConnected.id === id || userConnected.hasRole(UserRole.ADMIN)) {
+      if (data.photo && data.photo !== undefined) {
+        userFounded.Photo
+          ? this.uploadableService._unlinkedFile(logoDir, userFounded.Photo)
+          : '';
+        const newFilename = this.uploadableService._uploadableFile(logoDir, data.photo);
+        data.photo = newFilename;
+      }
+
       const profile = this.profileRepository.create(data);
       userFounded.profile = profile;
 
-      return await this.userService.update(userFounded);
+      const user = await this.userService.update(userFounded);
+      user.profile.photo = `${host}/profiles/${user.profile?.photo}`;
+      return user;
     }
     throw new UnauthorizedException(
       `you're not authorized to modify this profile`,

@@ -1,11 +1,15 @@
 import { Module, Global } from '@nestjs/common';
-import { ClientModule } from 'src/client/client.module';
 import { CinGeneratorService } from './cin-generator/cin-generator.service';
 import { MatriculeGeneratorService } from './matricule-ticket/matricule-generator.service';
+import { UploadableService } from './uploadable/uploadable.service';
 
 @Global()
 @Module({
-  providers: [CinGeneratorService, MatriculeGeneratorService],
-  exports: [CinGeneratorService, MatriculeGeneratorService],
+  providers: [
+    CinGeneratorService,
+    MatriculeGeneratorService,
+    UploadableService,
+  ],
+  exports: [CinGeneratorService, MatriculeGeneratorService, UploadableService],
 })
 export class HelpersModule {}

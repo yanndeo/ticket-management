@@ -9,6 +9,7 @@ import {
   Patch,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Req,
 } from '@nestjs/common';
 import { ProfileService } from '../services/profile.service';
 import { CreateProfileDto } from '../dto/create-profile.dto';
@@ -19,6 +20,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from 'src/config/decorators/roles.decorator';
 import { User } from 'src/config/decorators/user.decorator';
+import { Request } from 'express';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -27,13 +29,13 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Post('user/:id')
-  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createProfileDto: CreateProfileDto,
     @Param('id', ParseIntPipe) id: number,
     @User() user: UserEntity,
+    @Req() req: Request,
   ) {
-    return await this.profileService.create(createProfileDto, id, user);
+    return await this.profileService.create(createProfileDto, id, user, req.get('host'));
   }
 
   @UseGuards(JwtAuthGuard)

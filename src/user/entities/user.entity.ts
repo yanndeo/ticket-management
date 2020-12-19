@@ -86,7 +86,10 @@ export class UserEntity extends TimestampEntity {
   }
 
   // ----------------- Functions
-  hasRole = (role: UserRole) => {
-    return this.roles?.includes(role);
+  @Exclude()
+  hasRole = (...roles: any): boolean => {
+    const requiredRoles = [UserRole.ROOT, ...roles];
+    //console.log(requiredRoles);
+    return this.roles.some((item: string) => requiredRoles.includes(item));
   };
 }
