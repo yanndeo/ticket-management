@@ -74,4 +74,12 @@ export class TicketController {
   async remove(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
     return await this.ticketService.remove(id);
   }
+
+  @Get(':id/user')
+  //admin - client - engineer - manager
+  async getAllByUser(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<TicketEntity[]> {
+    return await this.ticketService.getAll(id);
+  }
 }

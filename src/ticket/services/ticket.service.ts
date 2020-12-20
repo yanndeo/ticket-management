@@ -46,7 +46,9 @@ export class TicketService {
       if (data?.supervisors && data?.supervisors?.length > 0) {
         newTkt.supervisors = [];
         for (let i = 0; i < data.supervisors?.length; i++) {
-          const supervisor = await this.userService.findOne(data.supervisors[i]);
+          const supervisor = await this.userService.findOne(
+            data.supervisors[i],
+          );
           newTkt.supervisors.push(supervisor);
         }
       }
@@ -72,6 +74,43 @@ export class TicketService {
    * send all tickets brut
    */
   async findAll() {
+    const tickets = await this.ticketRepository
+      .createQueryBuilder('ticket')
+      .leftJoin('ticket.assignTo', 'engineer')
+      .leftJoin('ticket.customer', 'client')
+      .leftJoin('ticket.supervisors', 'supervisor')
+      .select([
+        'ticket.id',
+        'ticket.matricule',
+        'ticket.order',
+        'ticket.priority',
+        'ticket.status',
+        'ticket.subject',
+        'ticket.description',
+        'ticket.comment',
+        'ticket.created_at',
+        'ticket.image_1',
+        'ticket.image_2',
+        'ticket.image_3',
+      ])
+      .addSelect(['engineer.id', 'engineer.username', 'engineer.Fullname'])
+      .addSelect(['client.id', 'client.company', 'client.logo'])
+      .addSelect(['supervisor.id', 'supervisor.username'])
+      .orderBy('ticket.id', 'DESC')
+      //.getSql();
+      //.take(15)
+      .getMany();
+    console.log(tickets);
+    return tickets;
+  }
+
+  /**
+   * get all ticket of/by user
+   * not need to check
+   * if user exist
+   * @param id
+   */
+  async getAll(id: number) {
     return await this.ticketRepository
       .createQueryBuilder('ticket')
       .leftJoin('ticket.customer', 'client')
@@ -95,6 +134,8 @@ export class TicketService {
       .addSelect(['engineer.id', 'engineer.username'])
       .addSelect(['supervisor.id', 'supervisor.username'])
       .orderBy('ticket.id', 'DESC')
+      .where('engineer.id = :id', { id })
+
       //.getSql();
       //.take(15)
       .getMany();
@@ -251,9 +292,9 @@ export class TicketService {
         id: ticket.assignTo.id,
         username: ticket.assignTo.username,
         email: ticket.assignTo.email,
-        _fullName: ticket.assignTo.Fullname,
-        _photo: ticket.assignTo.Photo,
-        _tel: ticket.assignTo.profile?.mobile ?? ticket.assignTo.profile?.fixe,
+        _fullName: ticket.assignTo?.Fullname,
+        _photo: ticket.assignTo?.Photo,
+        _tel: ticket.assignTo.profile?.mobile ?? ticket.assignTo?.profile?.fixe,
       },
       customer: {
         id: ticket.customer.id,

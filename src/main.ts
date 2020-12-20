@@ -19,6 +19,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'uploads'));
   app.setGlobalPrefix('api');
   app.use(json({ limit: '70mb' }));
+  //app.enableShutdownHooks(); enabled and send mail to admin on "OnApplicationShutdown" event
 
   //use .env variable
   const configService = app.get(ConfigService);

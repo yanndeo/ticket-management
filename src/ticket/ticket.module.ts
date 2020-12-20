@@ -11,5 +11,6 @@ import { ClientModule } from 'src/client/client.module';
   imports: [TypeOrmModule.forFeature([TicketEntity]), UserModule, ClientModule],
   controllers: [TicketController],
   providers: [TicketService, TicketSubscriber],
+  exports: [TicketService],
 })
 export class TicketModule {}

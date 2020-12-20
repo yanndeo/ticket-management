@@ -20,6 +20,8 @@ import { TicketModule } from './ticket/ticket.module';
 
 import * as dotenv from 'dotenv';
 import { MulterModule } from '@nestjs/platform-express';
+import { LoggingModule } from './logging/logging.module';
+import { KnowledgebaseModule } from './knowledgebase/knowledgebase.module';
 
 dotenv.config();
 
@@ -50,6 +52,8 @@ dotenv.config();
       synchronize: true, //Don't use it in Prod
     }),
     TicketModule,
+    LoggingModule,
+    KnowledgebaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

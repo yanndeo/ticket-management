@@ -67,12 +67,15 @@ export class UserEntity extends TimestampEntity {
 
   // ----------------- custom attributes/properties
 
-  @Expose()
-  get Fullname(): string {
-    return `${this.profile?.firstname} ${this.profile?.lastname}`;
+  @Expose({ name: '_fullname' })
+  get Fullname() {
+    const data = `${this.profile?.firstname} ${this?.profile?.lastname}`;
+    //if (data === "undefined undefined") data = this.username;
+    return data;
+    //return `${this.profile?.firstname} ${this.profile?.lastname}`;
   }
 
-  @Expose()
+  @Expose({ name: '_photo' })
   get Photo(): string {
     return `${this.profile?.photo}`;
   }

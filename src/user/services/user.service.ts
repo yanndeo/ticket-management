@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserEntity, UserRole } from '../entities/user.entity';
+import { UserEntity } from '../entities/user.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RegisterAuthDto } from 'src/auth/dto/register.auth.dto';
 
@@ -45,7 +45,7 @@ export class UserService {
     return await this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.profile', 'profile')
-     // .leftJoinAndSelect('user.tickets', 'ticket')
+      // .leftJoinAndSelect('user.tickets', 'ticket')
       .getMany();
   }
 
