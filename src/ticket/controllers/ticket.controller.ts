@@ -10,7 +10,7 @@ import { Roles } from 'src/config/decorators/roles.decorator';
 import { TicketInterface } from '../interface/ticket.interface';
 import { TicketEntity } from '../entities/ticket.entity';
 
-@UseInterceptors(ClassSerializerInterceptor)
+//@UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('ticket')
 export class TicketController {

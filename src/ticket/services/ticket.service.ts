@@ -12,6 +12,10 @@ import { Repository } from 'typeorm';
 import { UserService } from 'src/user/services/user.service';
 import { ClientService } from 'src/client/services/client.service';
 import { MatriculeGeneratorService } from 'src/helpers/matricule-ticket/matricule-generator.service';
+import { UploadableService } from 'src/helpers/uploadable/uploadable.service';
+
+//export const limitSize = 2 * 1025 * 1025;
+export const logoDir = './uploads/ticket/';
 
 @Injectable()
 export class TicketService {
@@ -21,6 +25,7 @@ export class TicketService {
     private userService: UserService,
     private customerService: ClientService,
     private matriculeGenerator: MatriculeGeneratorService,
+    private uploadableService: UploadableService,
   ) {}
 
   /**
@@ -31,6 +36,27 @@ export class TicketService {
   async create(data: CreateTicketDto, user: UserEntity) {
     const assignTo = await this.userService.findOne(data.assignTo); //where user est assigné a ce client
     const customer = await this.customerService._findById(data.customer);
+
+    let filename_1 = '';
+    let filename_2 = '';
+    let filename_3 = '';
+
+    if (data.image_1)
+      filename_1 = this.uploadableService._uploadableFile(
+        logoDir,
+        data.image_1,
+      );
+    if (data.image_2)
+      filename_2 = this.uploadableService._uploadableFile(
+        logoDir,
+        data.image_2,
+      );
+    if (data.image_3)
+      filename_3 = this.uploadableService._uploadableFile(
+        logoDir,
+        data.image_3,
+      );
+
     //create new ticket object
     try {
       const newTkt = new TicketEntity();
@@ -41,6 +67,9 @@ export class TicketService {
       newTkt.priority = data.priority;
       newTkt.subject = data.subject;
       newTkt.createdBy = user?.username; //author
+      newTkt.image_1 = filename_1;
+      newTkt.image_2 = filename_2;
+      newTkt.image_3 = filename_3;
 
       //add supervisors manyToMany table
       if (data?.supervisors && data?.supervisors?.length > 0) {
@@ -93,7 +122,7 @@ export class TicketService {
         'ticket.image_2',
         'ticket.image_3',
       ])
-      .addSelect(['engineer.id', 'engineer.username', 'engineer.Fullname'])
+      .addSelect(['engineer.id', 'engineer.username'])
       .addSelect(['client.id', 'client.company', 'client.logo'])
       .addSelect(['supervisor.id', 'supervisor.username'])
       .orderBy('ticket.id', 'DESC')

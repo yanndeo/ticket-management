@@ -22,7 +22,7 @@ import { Roles } from 'src/config/decorators/roles.decorator';
 import { User } from 'src/config/decorators/user.decorator';
 import { Request } from 'express';
 
-@UseInterceptors(ClassSerializerInterceptor)
+//@UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('profile')
 export class ProfileController {

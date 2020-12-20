@@ -1,5 +1,5 @@
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -20,6 +20,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.use(json({ limit: '70mb' }));
   //app.enableShutdownHooks(); enabled and send mail to admin on "OnApplicationShutdown" event
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   //use .env variable
   const configService = app.get(ConfigService);

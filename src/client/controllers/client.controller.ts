@@ -9,8 +9,6 @@ import {
   ParseIntPipe,
   Patch,
   UseInterceptors,
-  ClassSerializerInterceptor,
-  UploadedFile,
   Req,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -24,7 +22,7 @@ import { ClientEntity } from '../entities/client.entity';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Request } from 'express';
 
-@UseInterceptors(ClassSerializerInterceptor)
+//@UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('client')
 export class ClientController {

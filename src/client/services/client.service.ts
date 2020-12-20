@@ -12,11 +12,6 @@ import { Repository } from 'typeorm';
 import { CreateClientDto } from '../dto/create-client.dto';
 import { UpdateClientDto } from '../dto/update-client.dto';
 import { ClientEntity } from '../entities/client.entity';
-import * as fs from 'fs';
-import path from 'path';
-import * as mime from 'mime-types';
-import { v4 as uuid } from 'uuid';
-import sizeOf from 'image-size';
 import { UploadableService } from 'src/helpers/uploadable/uploadable.service';
 
 export const limitSize = 2 * 1025 * 1025;
