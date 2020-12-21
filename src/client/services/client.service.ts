@@ -3,11 +3,9 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  PayloadTooLargeException,
-  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity, UserRole } from 'src/user/entities/user.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateClientDto } from '../dto/create-client.dto';
 import { UpdateClientDto } from '../dto/update-client.dto';
@@ -121,7 +119,10 @@ export class ClientService {
       client.logo
         ? this.uploadableService._unlinkedFile(logoDir, client.logo)
         : '';
-      const newFilename = this.uploadableService._uploadableFile(logoDir, data.logo);
+      const newFilename = this.uploadableService._uploadableFile(
+        logoDir,
+        data.logo,
+      );
       data.logo = newFilename;
     }
     const clientUpdated = await this.clientRepository.preload({ id, ...data });

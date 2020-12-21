@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, ClassSerializerInterceptor, UseInterceptors, Patch, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+  Patch,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { TicketService } from '../services/ticket.service';
 import { CreateTicketDto } from '../dto/create-ticket.dto';
 import { UpdateTicketDto } from '../dto/update-ticket.dto';
@@ -80,6 +92,12 @@ export class TicketController {
   async getAllByUser(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<TicketEntity[]> {
-    return await this.ticketService.getAll(id);
+    return await this.ticketService.getAllByUser(id);
+  }
+
+  @Get(':id/customer')
+  //admin - client - engineer - manager
+  async getAllByClient() {
+    //return await this.ticketService.getAllByClient(id);
   }
 }

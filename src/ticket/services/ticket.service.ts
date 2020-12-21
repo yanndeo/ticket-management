@@ -40,22 +40,25 @@ export class TicketService {
     let filename_1 = '';
     let filename_2 = '';
     let filename_3 = '';
-
-    if (data.image_1)
+    if (data.image_1) {
       filename_1 = this.uploadableService._uploadableFile(
         logoDir,
         data.image_1,
       );
-    if (data.image_2)
+    }
+
+    if (data.image_2) {
       filename_2 = this.uploadableService._uploadableFile(
         logoDir,
         data.image_2,
       );
-    if (data.image_3)
+    }
+    if (data.image_3) {
       filename_3 = this.uploadableService._uploadableFile(
         logoDir,
         data.image_3,
       );
+    }
 
     //create new ticket object
     try {
@@ -139,7 +142,7 @@ export class TicketService {
    * if user exist
    * @param id
    */
-  async getAll(id: number) {
+  async getAllByUser(id: number) {
     return await this.ticketRepository
       .createQueryBuilder('ticket')
       .leftJoin('ticket.customer', 'client')
@@ -224,9 +227,39 @@ export class TicketService {
     tkt.customer = data.customer
       ? await this.customerService._findById(data.customer)
       : tkt.customer;
-    tkt.image_1 = data.image_1 ?? tkt.image_1;
-    tkt.image_2 = data.image_2 ?? tkt.image_2;
-    tkt.image_3 = data.image_3 ?? tkt.image_3;
+    // replace or not image_X
+    if (data.image_1 && data.image_1 !== undefined) {
+      tkt.image_1
+        ? this.uploadableService._unlinkedFile(logoDir, tkt.image_1)
+        : '';
+      const filename_1 = this.uploadableService._uploadableFile(
+        logoDir,
+        data.image_1,
+      );
+      tkt.image_1 = filename_1;
+    }
+
+    if (data.image_2 && data.image_2 !== undefined) {
+      tkt.image_2
+        ? this.uploadableService._unlinkedFile(logoDir, tkt.image_2)
+        : '';
+      const filename_2 = this.uploadableService._uploadableFile(
+        logoDir,
+        data.image_2,
+      );
+      tkt.image_2 = filename_2;
+    }
+
+    if (data.image_3 && data.image_3 !== undefined) {
+      tkt.image_3
+        ? this.uploadableService._unlinkedFile(logoDir, tkt.image_3)
+        : '';
+      const filename_3 = this.uploadableService._uploadableFile(
+        logoDir,
+        data.image_3,
+      );
+      tkt.image_3 = filename_3;
+    }
 
     //add supervisors manyToMany table
     if (data.supervisors && data.supervisors?.length > 0) {
