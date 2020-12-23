@@ -86,14 +86,13 @@ export class ClientController {
   @Delete(':id')
   //role_admin
   @Roles(UserRole.ADMIN)
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
+  async sofDelete(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
     return await this.clientService.sofDelete(id);
   }
 
   @Get(':id/restore')
-  //role_admin
   @Roles(UserRole.ADMIN)
-  async recover(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
+  async restore(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
     return await this.clientService.restore(id);
   }
 }

@@ -21,6 +21,8 @@ export class ContactEntity {
   @Column({ type: 'text', nullable: false })
   comment: string;
 
+  //----------------RELATION-----------------------//
+
   @ManyToOne(() => ClientEntity, (client) => client.contacts, {
     nullable: false,
   })

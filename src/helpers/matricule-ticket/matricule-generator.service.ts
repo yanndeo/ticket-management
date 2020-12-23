@@ -7,8 +7,9 @@ export class MatriculeGeneratorService {
 
     const d = new Date();
     console.log('count:', count);
+    console.log('date:', d.getMonth() + 1);
 
-    const data = `${name.slice(0, 3)}${d.getMonth()}${acronym}${
+    const data = `${name.slice(0, 3)}${d.getMonth() + 1}${acronym}${
       count + 1
     }${d.getUTCFullYear().toString().slice(2)}`; //add code client
 

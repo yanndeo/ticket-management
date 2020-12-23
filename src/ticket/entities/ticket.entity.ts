@@ -1,4 +1,3 @@
-import { Expose } from 'class-transformer';
 import { Column, Entity, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 import { TimestampEntity } from 'src/config/generics/timestamp.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -22,9 +21,6 @@ export enum StatusTicketEnum {
 export class TicketEntity extends TimestampEntity {
   @Column({ length: 255, unique: true, nullable: false })
   matricule: string;
-
-  //@Column({ length: 255, unique: true, nullable: true })
-  //code: string;
 
   @Column({ length: 255, unique: false, nullable: true })
   order: string;

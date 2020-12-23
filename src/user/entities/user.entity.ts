@@ -1,10 +1,19 @@
 import { CurriculumEntity } from 'src/curriculum/entities/curriculum.entity';
 import { TimestampEntity } from 'src/config/generics/timestamp.entity';
-import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { ProfileEntity } from '../../profile/entities/profile.entity';
 import { IsDateString } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
+import { ArticleEntity } from 'src/wiki/entities/article.entity';
 
 export enum UserRole {
   //interne
@@ -65,14 +74,17 @@ export class UserEntity extends TimestampEntity {
   })
   tickets: Promise<TicketEntity[]>;
 
+  @OneToMany(() => ArticleEntity, (article) => article.author, {
+    eager: false,
+    nullable: true,
+  })
+  articles: ArticleEntity[];
+
   // ----------------- custom attributes/properties
 
   @Expose({ name: '_fullname' })
   get Fullname() {
-    const data = `${this.profile?.firstname} ${this?.profile?.lastname}`;
-    //if (data === "undefined undefined") data = this.username;
-    return data;
-    //return `${this.profile?.firstname} ${this.profile?.lastname}`;
+    return `${this.profile?.firstname} ${this.profile?.lastname}`;
   }
 
   @Expose({ name: '_photo' })
@@ -92,7 +104,6 @@ export class UserEntity extends TimestampEntity {
   @Exclude()
   hasRole = (...roles: any): boolean => {
     const requiredRoles = [UserRole.ROOT, ...roles];
-    //console.log(requiredRoles);
     return this.roles.some((item: string) => requiredRoles.includes(item));
   };
 }

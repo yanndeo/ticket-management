@@ -10,7 +10,6 @@ import { CinGeneratorService } from '../../helpers/cin-generator/cin-generator.s
 @EventSubscriber()
 export class CurriculumSubscriber
   implements EntitySubscriberInterface<CurriculumEntity> {
-  
   private cinGenerator: CinGeneratorService;
 
   constructor(connection: Connection, cinGenerator: CinGeneratorService) {
@@ -22,7 +21,9 @@ export class CurriculumSubscriber
     return CurriculumEntity;
   }
 
-  async beforeInsert(event: InsertEvent<CurriculumEntity>): Promise<CurriculumEntity> {
+  async beforeInsert(
+    event: InsertEvent<CurriculumEntity>,
+  ): Promise<CurriculumEntity> {
     console.log(`BEFORE CV INSERTED:`, event.entity);
     const cv = event.entity;
     cv.cin = await this.cinGenerator.handle();

@@ -13,6 +13,10 @@ import { UserService } from 'src/user/services/user.service';
 import { ClientService } from 'src/client/services/client.service';
 import { MatriculeGeneratorService } from 'src/helpers/matricule-ticket/matricule-generator.service';
 import { UploadableService } from 'src/helpers/uploadable/uploadable.service';
+import {
+  _getQueryTicketAndAssociateEntity,
+  _partialDataTicket,
+} from './ticket.partial';
 
 //export const limitSize = 2 * 1025 * 1025;
 export const logoDir = './uploads/ticket/';
@@ -93,7 +97,7 @@ export class TicketService {
       const createdTicket = await this.ticketRepository.save(ticket);
 
       //customized response object
-      return this._partialDataTicket(createdTicket);
+      return _partialDataTicket(createdTicket);
     } catch (error) {
       console.debug(error);
       throw new BadRequestException(error.message);
@@ -106,34 +110,9 @@ export class TicketService {
    * send all tickets brut
    */
   async findAll() {
-    const tickets = await this.ticketRepository
-      .createQueryBuilder('ticket')
-      .leftJoin('ticket.assignTo', 'engineer')
-      .leftJoin('ticket.customer', 'client')
-      .leftJoin('ticket.supervisors', 'supervisor')
-      .select([
-        'ticket.id',
-        'ticket.matricule',
-        'ticket.order',
-        'ticket.priority',
-        'ticket.status',
-        'ticket.subject',
-        'ticket.description',
-        'ticket.comment',
-        'ticket.created_at',
-        'ticket.image_1',
-        'ticket.image_2',
-        'ticket.image_3',
-      ])
-      .addSelect(['engineer.id', 'engineer.username'])
-      .addSelect(['client.id', 'client.company', 'client.logo'])
-      .addSelect(['supervisor.id', 'supervisor.username'])
+    return await _getQueryTicketAndAssociateEntity(this.ticketRepository)
       .orderBy('ticket.id', 'DESC')
-      //.getSql();
-      //.take(15)
       .getMany();
-    console.log(tickets);
-    return tickets;
   }
 
   /**
@@ -143,50 +122,23 @@ export class TicketService {
    * @param id
    */
   async getAllByUser(id: number) {
-    return await this.ticketRepository
-      .createQueryBuilder('ticket')
-      .leftJoin('ticket.customer', 'client')
-      .leftJoin('ticket.assignTo', 'engineer')
-      .leftJoin('ticket.supervisors', 'supervisor')
-      .select([
-        'ticket.id',
-        'ticket.matricule',
-        'ticket.order',
-        'ticket.priority',
-        'ticket.status',
-        'ticket.subject',
-        'ticket.description',
-        'ticket.comment',
-        'ticket.created_at',
-        'ticket.image_1',
-        'ticket.image_2',
-        'ticket.image_3',
-      ])
-      .addSelect(['client.id', 'client.company', 'client.logo'])
-      .addSelect(['engineer.id', 'engineer.username'])
-      .addSelect(['supervisor.id', 'supervisor.username'])
+    return await _getQueryTicketAndAssociateEntity(this.ticketRepository)
       .orderBy('ticket.id', 'DESC')
       .where('engineer.id = :id', { id })
-
-      //.getSql();
-      //.take(15)
       .getMany();
   }
 
   /**
-   *
+   * find one ticket
+   * by his id
+   * all users can see it
    * @param id
    */
   async findOne(id: number) {
-    const ticket = await this.ticketRepository
-      .createQueryBuilder('ticket')
+    const ticket = await _getQueryTicketAndAssociateEntity(
+      this.ticketRepository,
+    )
       .where('ticket.id = :id', { id })
-      .leftJoin('ticket.customer', 'client')
-      .leftJoin('ticket.assignTo', 'user')
-      .leftJoin('ticket.supervisors', 'supervisor')
-      .addSelect(['client.id', 'client.company', 'client.logo', 'client.site'])
-      .addSelect(['user.id', 'user.username'])
-      .addSelect(['supervisor.id', 'supervisor.username'])
       .getOne();
 
     if (!ticket) throw new NotFoundException(`ticket ${id} not found`);
@@ -202,6 +154,7 @@ export class TicketService {
 
   /**
    * update ticket
+   * admin - manager - client_partner - engineer_partner
    * @param id
    * @param data
    * @param user
@@ -271,7 +224,7 @@ export class TicketService {
     }
     //save patch changement
     const ticket = await this.ticketRepository.save(tkt);
-    return await this._partialDataTicket(ticket);
+    return await _partialDataTicket(ticket);
   }
 
   /**
@@ -329,62 +282,5 @@ export class TicketService {
       .getCount();
 
     return await this.matriculeGenerator.handle(count, company);
-  }
-
-  /**
-   * private meth
-   * customize data ticket object
-   * returned
-   * @param ticket
-   */
-  _partialDataTicket(ticket: TicketEntity) {
-    return {
-      id: ticket.id,
-      matricule: ticket.matricule,
-      order: ticket.order,
-      subject: ticket.subject,
-      priority: ticket.priority,
-      status: ticket.status,
-      description: ticket.description,
-      comment: ticket.comment,
-      image_1: ticket.image_1,
-      image_2: ticket.image_2,
-      image_3: ticket.image_3,
-      assignTo: {
-        id: ticket.assignTo.id,
-        username: ticket.assignTo.username,
-        email: ticket.assignTo.email,
-        _fullName: ticket.assignTo?.Fullname,
-        _photo: ticket.assignTo?.Photo,
-        _tel: ticket.assignTo.profile?.mobile ?? ticket.assignTo?.profile?.fixe,
-      },
-      customer: {
-        id: ticket.customer.id,
-        company: ticket.customer.company,
-        logo: ticket.customer.logo,
-      },
-      supervisors: ticket.supervisors?.map((item) => {
-        return {
-          id: item.id,
-          username: item.username,
-          email: item.email,
-          _fullName: item.Fullname,
-          _photo: item.Photo,
-          //_tel: item.profile?.mobile ?? item.profile?.fixe,
-        };
-        /* const {
-          validated_at,
-          salt,
-          password,
-          delete_at,
-          created_at,
-          updated_at,
-          roles,
-          ...res
-        } = item;
-        return res; */
-      }),
-      createdBy: ticket.createdBy,
-    };
   }
 }

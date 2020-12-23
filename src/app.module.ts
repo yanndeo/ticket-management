@@ -17,11 +17,10 @@ import { AuthModule } from './auth/auth.module';
 import { ClientModule } from './client/client.module';
 import { ProfileModule } from './profile/profile.module';
 import { TicketModule } from './ticket/ticket.module';
+import { WikiModule } from './wiki/wiki.module';
 
 import * as dotenv from 'dotenv';
 import { MulterModule } from '@nestjs/platform-express';
-import { LoggingModule } from './logging/logging.module';
-import { KnowledgebaseModule } from './knowledgebase/knowledgebase.module';
 
 dotenv.config();
 
@@ -52,8 +51,7 @@ dotenv.config();
       synchronize: true, //Don't use it in Prod
     }),
     TicketModule,
-    LoggingModule,
-    KnowledgebaseModule,
+    WikiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

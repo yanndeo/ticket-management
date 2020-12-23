@@ -10,6 +10,7 @@ import { TimestampEntity } from 'src/config/generics/timestamp.entity';
 import { ContactEntity } from './contact.entity';
 import { TicketEntity } from 'src/ticket/entities/ticket.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { ArticleEntity } from 'src/wiki/entities/article.entity';
 
 @Entity('client')
 export class ClientEntity extends TimestampEntity {
@@ -57,7 +58,14 @@ export class ClientEntity extends TimestampEntity {
   })
   tickets: TicketEntity[];
 
-  //----------------RELATION-----------------------//
+  @OneToMany(() => ArticleEntity, (article) => article.client, {
+    eager: false,
+    nullable: true,
+    cascade: false,
+  })
+  articles: ArticleEntity[];
+
+  //----------------LISTENERS-----------------------//
   @BeforeInsert()
   emailsToLowerCase() {
     if (this.emails?.length > 0) {

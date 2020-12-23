@@ -129,7 +129,7 @@ export class ClientService {
 
     const res = await this.clientRepository.save(clientUpdated);
 
-    res.logo = `${host}/logos/${res.logo}`;
+    res.logo = res.logo ? `${host}/logos/${res.logo}` : null;
     return res;
   }
 
