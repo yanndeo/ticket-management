@@ -54,7 +54,7 @@ export class CategoryController {
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   softDelete(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
-    return this.categoryService.sofDelete(+id);
+    return this.categoryService.sofDelete(id);
   }
 
   @Get(':id/restore')

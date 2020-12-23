@@ -109,6 +109,6 @@ export class CategoryService {
   async remove(id: number) {
     const category = await this.categoryRepository.findOne(id);
     if (!category) throw new NotFoundException(`this category doesn't exist`);
-    return this.categoryRepository.remove(category);
+    return await this.categoryRepository.remove(category);
   }
 }

@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { ArticleService } from '../services/article.service';
 import { CreateArticleDto } from '../dto/create-article.dto';
@@ -33,22 +35,41 @@ export class ArticleController {
   }
 
   @Get()
-  async findAll(){
+  async findAll() {
     return await this.articleService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.articleService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<ArticleEntity> {
+    return await this.articleService.findOne(id);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articleService.update(+id, updateArticleDto);
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateArticleDto: UpdateArticleDto,
+    @User() user: UserEntity,
+  ) {
+    return this.articleService.update(id, updateArticleDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.articleService.remove(+id);
+  softDelete(
+    @Param('id', ParseIntPipe) id: number,
+    @User() user: UserEntity,
+  ): Promise<unknown> {
+    return this.articleService.sofDelete(id, user);
+  }
+
+  @Get(':id/restore')
+  @Roles(UserRole.ADMIN)
+  async restore(@Param('id', ParseIntPipe) id: number): Promise<unknown> {
+    return await this.articleService.restore(id);
+  }
+
+  @Get(':id/remove')
+  @Roles(UserRole.ROOT)
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.articleService.remove(id);
   }
 }
