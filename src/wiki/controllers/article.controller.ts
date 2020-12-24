@@ -3,12 +3,14 @@ import {
   Get,
   Post,
   Body,
-  Put,
   Param,
   Delete,
   UseGuards,
   ParseIntPipe,
   Patch,
+  UseInterceptors,
+  UploadedFile,
+  Req,
 } from '@nestjs/common';
 import { ArticleService } from '../services/article.service';
 import { CreateArticleDto } from '../dto/create-article.dto';
@@ -19,6 +21,9 @@ import { User } from 'src/config/decorators/user.decorator';
 import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { Roles } from 'src/config/decorators/roles.decorator';
 import { ArticleEntity } from '../entities/article.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
+
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('article')
@@ -71,5 +76,16 @@ export class ArticleController {
   @Roles(UserRole.ROOT)
   async remove(@Param('id', ParseIntPipe) id: number) {
     return await this.articleService.remove(id);
+  }
+
+  @Patch(':id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(
+    @Param('id', ParseIntPipe) id: number,
+    @User() user: UserEntity,
+    @UploadedFile() file,
+    @Req() req: Request,
+  ) {
+    return this.articleService.uploadFile(id, file, user, req.get('host') );
   }
 }

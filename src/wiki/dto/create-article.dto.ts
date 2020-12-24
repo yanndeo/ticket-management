@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { StatusArticleEnum } from '../entities/article.entity';
 import { Type } from 'class-transformer';
+import { FileEntity } from '../entities/file.entity';
 
 export class CreateArticleDto {
   @ApiProperty()
@@ -39,4 +40,9 @@ export class CreateArticleDto {
   @IsArray()
   @Type(() => Number)
   categories: number[];
+
+  @ApiProperty()
+  @IsOptional()
+  //@IsArray()
+  files: FileEntity[];
 }

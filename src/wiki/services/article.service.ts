@@ -11,6 +11,12 @@ import { UserEntity, UserRole } from 'src/user/entities/user.entity';
 import { CreateArticleDto } from '../dto/create-article.dto';
 import { ClientService } from 'src/client/services/client.service';
 import { CategoryService } from './category.service';
+import { UploadableService } from 'src/helpers/uploadable/uploadable.service';
+import { FileEntity } from '../entities/file.entity';
+import { humanFileSize } from '../../utils/index';
+
+export const limitSize = 8 * 1025 * 1025;
+export const fileDir = './uploads/files/';
 
 @Injectable()
 export class ArticleService {
@@ -19,6 +25,7 @@ export class ArticleService {
     private articleRepository: Repository<ArticleEntity>,
     private categoryService: CategoryService,
     private customerService: ClientService,
+    private uploadableService: UploadableService,
   ) {}
 
   /**
@@ -179,6 +186,53 @@ export class ArticleService {
     const article = await this.articleRepository.findOne(id);
     if (!article) throw new NotFoundException(`this category doesn't exist`);
     return await this.articleRepository.remove(article);
+  }
+
+  /**
+   *
+   * @param id
+   * @param file
+   * @param user
+   */
+  async uploadFile(id: number, data: any, user: UserEntity, hostname: string) {
+    const article = await this.articleRepository.findOne(id);
+    if (!article) throw new NotFoundException(`article ${id} doesn't exist`);
+
+    if (
+      user.hasRole(UserRole.ADMIN, UserRole.MANAGER) ||
+      user.id === article.id
+    ) {
+      const { originalname, mimetype } = data;
+
+      const fileName = this.uploadableService._uploadArticleFile(
+        fileDir,
+        data,
+        limitSize,
+      );
+
+      if (fileName) {
+        const file = new FileEntity();
+        file.title = originalname;
+        file.type = mimetype;
+        file.filename = fileName;
+
+        article.files = [...article.files, file];
+        console.log(file);
+        const newArticle = await this.articleRepository.create({
+          id,
+          ...article,
+        });
+
+        await this.articleRepository.save(newArticle);
+
+        file.filename = file.filename
+          ? `${hostname}/files/${file?.filename}`
+          : null;
+
+        return file;
+      }
+    }
+    throw new UnauthorizedException();
   }
 
   _getQueryArticleAndAssociateEntity() {

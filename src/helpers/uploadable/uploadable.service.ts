@@ -10,6 +10,7 @@ import path from 'path';
 import * as mime from 'mime-types';
 import { v4 as uuid } from 'uuid';
 import sizeOf from 'image-size';
+import { humanFileSize } from '../../utils/index';
 
 export const limitDefault = 2 * 1024 * 1025;
 
@@ -39,12 +40,12 @@ export class UploadableService {
     //const type = matches[1]; //decodedImg.type;
     const extension = sizeOf(imageBuffer).type; //mime.extension(type);
     const fileName = `${uuid()}.${extension}`;
-    const sizebytes = imageBuffer.byteLength / 1024;
+    const sizebytes = imageBuffer.byteLength;
 
     if (sizebytes > limitSize) {
-      const limitToMo = Math.round((limitSize / 1024) / 1024);
+      const limitToMo = humanFileSize(limitSize);
       throw new PayloadTooLargeException(
-        `size doesn't must be greater than limit: ${limitToMo} Mo `,
+        `size doesn't must be greater than limit: ${limitToMo} `,
       );
     }
 
@@ -80,5 +81,40 @@ export class UploadableService {
     } catch (error) {
       throw error;
     } */
+  };
+
+  _uploadArticleFile = (
+    path: string,
+    file: any,
+    limitSize: number = limitDefault,
+  ) => {
+    const extension = mime.extension(file.mimetype);
+    const fileName = `${uuid()}.${extension}`;
+    const sizebytes = file.size;
+    console.log(extension);
+    if (!extension) throw new BadRequestException(`file doesn't exist`);
+
+    if (extension.match(/\/(jpg|jpeg|png)$/)) {
+      throw new UnsupportedMediaTypeException();
+    }
+
+    if (sizebytes > limitSize) {
+      const limitToMo = humanFileSize(limitSize);
+      throw new PayloadTooLargeException(
+        `size doesn't must be greater than limit: ${limitToMo}  `,
+      );
+    }
+
+    if (!file.buffer) throw new BadRequestException(`file doesn't exist`);
+
+    console.log(fileName);
+
+    try {
+      fs.writeFileSync(path + fileName, file.buffer, 'utf8');
+      return fileName;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(error);
+    }
   };
 }

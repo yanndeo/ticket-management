@@ -6,6 +6,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
 } from 'typeorm';
 import { TimestampEntity } from 'src/config/generics/timestamp.entity';
@@ -13,6 +14,7 @@ import { CategoryEntity } from './category.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Expose } from 'class-transformer';
 import { ClientEntity } from 'src/client/entities/client.entity';
+import { FileEntity } from './file.entity';
 
 export enum StatusArticleEnum {
   PUBLISHED = 1,
@@ -43,6 +45,12 @@ export class ArticleEntity extends TimestampEntity {
   @JoinTable()
   categories: CategoryEntity[];
 
+  @OneToMany(() => FileEntity, (file) => file.article, {
+    eager: true,
+    nullable: true,
+    cascade: true,
+  })
+  files: FileEntity[];
   // ----------------- custom attributes/properties
 
   @Expose({ name: '_author' })

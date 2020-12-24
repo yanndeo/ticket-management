@@ -70,9 +70,11 @@ export class AuthService {
     //console.log(user);
     //check if user exist in database
     if (!user) {
-      //throw new NotFoundException(`this user doesn't exist`);
       throw new BadRequestException('username or password is incorrect');
     }
+    /* if (user && user.validated_at === null) {
+      throw new BadRequestException(`invalid account`);
+    } */
     //if user exist , crypt his password
     const hashedPassword = await bcrypt.hash(password, user.salt);
     //check if password has been hashed.
@@ -83,8 +85,8 @@ export class AuthService {
     if (hashedPassword !== user.password) {
       throw new BadRequestException('username or password is incorrect');
     } else {
-      const { id, username, roles, email } = user; //destructuring
-      const payload = { id, username, email, roles }; //Assignation
+      const { id, username, roles, email, validated_at } = user; //destructuring
+      const payload = { id, username, email, roles, validated_at }; //Assignation
 
       console.log(payload);
       return await this._sign(payload);

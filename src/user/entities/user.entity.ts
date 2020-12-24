@@ -28,10 +28,10 @@ export enum UserRole {
 
 @Entity('user')
 export class UserEntity extends TimestampEntity {
-  @Column({ length: 180, unique: true })
+  @Column({ length: 128, unique: true })
   username: string;
 
-  @Column({ length: 255, unique: true })
+  @Column({ length: 128, unique: true })
   email: string;
 
   @Exclude()
