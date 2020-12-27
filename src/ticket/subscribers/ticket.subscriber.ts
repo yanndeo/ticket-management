@@ -11,7 +11,6 @@ import { TicketEntity } from '../entities/ticket.entity';
 // eslint-disable-next-line prettier/prettier
 export class TicketSubscriber
   implements EntitySubscriberInterface<TicketEntity> {
-
   private matriculeGenerator: MatriculeGeneratorService;
 
   constructor(

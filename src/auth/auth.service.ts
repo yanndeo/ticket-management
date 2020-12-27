@@ -15,12 +15,19 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterAuthDto } from './dto/register.auth.dto';
+import { MailService } from '../mail/services/mail.service';
+import { v4 as uuid } from 'uuid';
+import { InjectRedis, Redis } from '@svtslv/nestjs-ioredis';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private userService: UserService,
+    private mailService: MailService,
+    @InjectRedis()
+    private readonly redis: Redis,
   ) {}
 
   /** */
@@ -41,7 +48,12 @@ export class AuthService {
     }
   }
 
-  //REGISTER USER
+  /**
+   * REGISTER USER
+   * store code into redis
+   * send email confirmation
+   * @param userData
+   */
   async register(userData: RegisterAuthDto): Promise<Partial<UserEntity>> {
     // create new user entity
     const user = await this.userService.createEntity(userData);
@@ -49,17 +61,17 @@ export class AuthService {
     user.password = await bcrypt.hash(user.password, user.salt);
     // save user entity in database
     try {
-      await this.userService.save(user);
+      const newUser = await this.userService.save(user);
+      const { password, salt, updated_at, delete_at, ...res } = newUser;
+
+      //add key: id value code in redis
+      const code = await this._runUuidCodeAndSetRedis(res.id);
+      await this.mailService.sendConfirmationEmail(res, code);
+
+      return res;
     } catch (error) {
       throw new ConflictException(error.message);
     }
-    // customize response to hide salt and password
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      roles: user.roles,
-    };
   }
 
   //LOGIN USER
@@ -72,9 +84,10 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('username or password is incorrect');
     }
-    /* if (user && user.validated_at === null) {
+    //check if user account is validate account
+    if (user && user.validated_at === null) {
       throw new BadRequestException(`invalid account`);
-    } */
+    }
     //if user exist , crypt his password
     const hashedPassword = await bcrypt.hash(password, user.salt);
     //check if password has been hashed.
@@ -94,5 +107,42 @@ export class AuthService {
       /*  const jwt = await this.jwtService.sign(payload);
       return { access_token: jwt }; */
     }
+  }
+
+  /**
+   * user must validate his account
+   * get id in redis using code-key
+   * and update use's data: validated_at
+   * @param key
+   */
+  async validateAccount(key: string) {
+    const userId = await this.redis.get(`user-code-${key}`);
+
+    if (!userId)
+      //send admin email
+      throw new NotFoundException(
+        `this link has expired.Please contact administrator`,
+      );
+
+    const user = await this.userService.findOne(parseInt(userId));
+    console.log(user);
+    user.validated_at = new Date();
+    return await this.userService.update(user);
+  }
+
+  /**
+   * generate uuid code
+   * and store it into redis
+   * @param id
+   */
+  async _runUuidCodeAndSetRedis(id: number): Promise<string> {
+    const key = uuid();
+    await this.redis.set(`user-code-${key}`, id, 'EX', 160); //3days 259200 s
+    const redisData = await this.redis.get(`user-code-${key}`);
+
+    return key;
+
+    // console.log(redisData);
+    // await redis.set(id, userId.toString(), 'EX', 60 * 60 * 15);
   }
 }

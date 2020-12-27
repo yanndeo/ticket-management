@@ -9,27 +9,35 @@ import { json } from 'body-parser';
 
 import * as morgan from 'morgan';
 import { ConfigService } from '@nestjs/config';
+import { MyLogger } from './logger/services/mylogger.service';
 
 dotenv.config();
 
 async function bootstrap() {
   //const app = await NestFactory.create(AppModule);
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    //logger: false,
+  });
+  // custom logger
+  app.useLogger(app.get(MyLogger));
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'));
-  app.setGlobalPrefix('api');
+  //use .env variable
+  const configService = app.get(ConfigService);
+
+  app.useStaticAssets(
+    join(__dirname, '..', configService.get('UPLOAD_LOCATION')),
+  );
+  app.setGlobalPrefix(configService.get('APP_PREFIX'));
   app.use(json({ limit: '70mb' }));
   //app.enableShutdownHooks(); enabled and send mail to admin on "OnApplicationShutdown" event
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  //use .env variable
-  const configService = app.get(ConfigService);
-
   //enable cors for domain
   const corsOptions = {
     origin: ['http://localhost:4200'],
   };
+
   //app.enableCors(corsOptions);
   app.enableCors();
 

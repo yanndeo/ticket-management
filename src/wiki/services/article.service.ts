@@ -13,7 +13,6 @@ import { ClientService } from 'src/client/services/client.service';
 import { CategoryService } from './category.service';
 import { UploadableService } from 'src/helpers/uploadable/uploadable.service';
 import { FileEntity } from '../entities/file.entity';
-import { humanFileSize } from '../../utils/index';
 
 export const limitSize = 8 * 1025 * 1025;
 export const fileDir = './uploads/files/';

@@ -9,12 +9,14 @@ import { AuthController } from './auth.controller';
 import * as dotenv from 'dotenv';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { MailModule } from 'src/mail/mail.module';
 dotenv.config();
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
     UserModule,
+    MailModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: process.env.APP_SECRET,

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { LoginCredentialsDto } from '../auth/dto/login.credentials.dto';
 import { AuthService } from './auth.service';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -18,5 +18,10 @@ export class AuthController {
   @Post('login')
   async login(@Body() data: LoginCredentialsDto): Promise<unknown> {
     return await this.authService.login(data);
+  }
+
+  @Get(':code/confirm')
+  async confirm(@Param('code') code: string): Promise<UserEntity> {
+    return await this.authService.validateAccount(code);
   }
 }

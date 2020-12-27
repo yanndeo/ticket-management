@@ -18,9 +18,12 @@ import { ClientModule } from './client/client.module';
 import { ProfileModule } from './profile/profile.module';
 import { TicketModule } from './ticket/ticket.module';
 import { WikiModule } from './wiki/wiki.module';
+import { RedisModule } from '@svtslv/nestjs-ioredis';
 
 import * as dotenv from 'dotenv';
 import { MulterModule } from '@nestjs/platform-express';
+import { MailModule } from './mail/mail.module';
+import { LoggerModule } from './logger/logger.module';
 
 dotenv.config();
 
@@ -31,10 +34,14 @@ dotenv.config();
     }),
     HelpersModule,
     AuthModule,
+    LoggerModule,
     CurriculumModule,
     UserModule,
     ProfileModule,
     ClientModule,
+    TicketModule,
+    WikiModule,
+    MailModule,
 
     ConfigModule.forRoot({
       isGlobal: true,
@@ -50,8 +57,14 @@ dotenv.config();
       //subscribers: ['dist/**/*.subscriber{.ts,.js}'],
       synchronize: true, //Don't use it in Prod
     }),
-    TicketModule,
-    WikiModule,
+    RedisModule.forRootAsync({
+      useFactory: () => ({
+        config: {
+          host: process.env.REDIS_HOST,
+          port: +process.env.REDIS_PORT,
+        },
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -14,6 +14,7 @@ export const removeItem = (items, i) => {
   return items.slice(0, i - 1).concat(items.slice(i, items.length));
 };
 
+//3- convert size bytes to human size
 export const humanFileSize = (size) => {
   if (size < 1024) return size + ' B';
   const i = Math.floor(Math.log(size) / Math.log(1024));
@@ -22,3 +23,6 @@ export const humanFileSize = (size) => {
   num = round < 10 ? +num.toFixed(2) : round < 100 ? +num.toFixed(1) : round;
   return `${Math.round(num)} ${'KMGTPEZY'[i - 1]}B`;
 };
+
+//4- Queue name
+export const mail_queue_name = 'mail';
